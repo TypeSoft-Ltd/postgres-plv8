@@ -1,1 +1,4 @@
-# postgres-plv8
+An image based on Alpine Postgres with PLV8.
+
+## Licence
+MIT
