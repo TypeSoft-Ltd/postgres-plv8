@@ -12,22 +12,23 @@ RUN set -ex \
   && cd plv8 \
   && make \
   && strip plv8-${PLV8_VERSION}.so \
-  && make install
-
-RUN git clone https://github.com/postgrespro/rum.git  \
-    && cd rum  \
-    && make USE_PGXS=1  \
-    && make USE_PGXS=1 install
-
+  && make install \
+  && cd .. \
+  && git clone https://github.com/postgrespro/rum  \
+  && cd rum  \
+  && make USE_PGXS=1  \
+  && make USE_PGXS=1 install
 
 FROM docker.io/library/postgres:${PG_CONTAINER_VERSION}-alpine
-
 
 ARG PLV8_VERSION=3.2.3
 ENV PLV8_VERSION=${PLV8_VERSION}
 COPY --from=builder /usr/local/lib/postgresql/plv8* /usr/local/lib/postgresql/
 COPY --from=builder /usr/local/lib/postgresql/bitcode/plv8-${PLV8_VERSION}/* /usr/local/lib/postgresql/bitcode/plv8-${PLV8_VERSION}/
 COPY --from=builder /usr/local/share/postgresql/extension/plv8* /usr/local/share/postgresql/extension/
+
+COPY --from=builder /usr/local/lib/postgresql/rum* /usr/local/lib/postgresql/
+COPY --from=builder /usr/local/share/postgresql/extension/rum* /usr/local/share/postgresql/extension/
 
 RUN mkdir -p /var/log/postgres \
   && touch /var/log/postgres/log /var/log/postgres/log.csv \
